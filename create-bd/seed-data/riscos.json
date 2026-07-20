@@ -1,0 +1,122 @@
+[
+  {
+    "nome_risco": "Risco Técnico",
+    "descricao": "Equipamentos, infraestrutura e tecnologias necessárias para execução do projeto.",
+    "prompt": "Analise o texto e identifique se há riscos técnicos relacionados à infraestrutura ou equipamentos necessários para sua execução. Esta análise refere-se ao tipo “Risco Técnico”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Dependências críticas (equipamentos, softwares, insumos); Nível de prontidão tecnológica; Impacto potencial de falhas, atrasos ou indisponibilidade; Estratégias de mitigação propostas ou ausentes. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade: baixa/média/alta], [Impacto: baixo/médio/alto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco Metodológico",
+    "descricao": "Adequação e confiabilidade científica dos métodos e procedimentos adotados.",
+    "prompt": "Analise o texto e identifique riscos metodológicos potenciais. Esta análise refere-se ao tipo “Risco Metodológico”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Clareza e coerência entre objetivos, hipóteses e métodos; Validade, reprodutibilidade e adequação dos métodos propostos; Existência de planos alternativos em caso de falha metodológica; Grau de incerteza epistemológica associado às técnicas utilizadas. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco Financeiro",
+    "descricao": "Sustentabilidade e estabilidade dos recursos orçamentários necessários à execução do projeto.",
+    "prompt": "Examine o texto e identifique riscos financeiros potenciais. Esta análise refere-se ao tipo “Risco Financeiro”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Suficiência e detalhamento do orçamento; Dependência de fontes únicas de financiamento; Possibilidade de cortes, atrasos ou contingências orçamentárias; Existência de estratégias de mitigação financeira. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco Regulatório e Ético",
+    "descricao": "Conformidade do projeto com normas, legislações e princípios éticos aplicáveis.",
+    "prompt": "Analise o texto e verifique a existência de riscos regulatórios ou éticos. Esta análise refere-se ao tipo “Risco Regulatório e Ético”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Conformidade com comitês de ética (CEP/CONEP ou equivalentes); Necessidade de licenças, autorizações ou registros; Riscos de não conformidade com legislações nacionais ou internacionais; Estratégias de mitigação e governança ética. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco Humano",
+    "descricao": "Dependência de pessoas-chave, capacitação da equipe e estabilidade do quadro técnico-científico.",
+    "prompt": "Analise o texto e identifique riscos humanos associados à equipe de pesquisa. Esta análise refere-se ao tipo “Risco Humano”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Dependência de pesquisadores ou técnicos essenciais; Existência de lacunas de capacitação técnica ou científica; Riscos de rotatividade, sobrecarga ou ausência de substituição; Estratégias de mitigação (treinamento, documentação, sucessão). Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Cronograma",
+    "descricao": "Atrasos ou incompatibilidade entre o tempo previsto e a complexidade do projeto.",
+    "prompt": "Examine o texto do projeto e identifique riscos de atraso ou inviabilidade temporal. Esta análise refere-se ao tipo “Risco de Cronograma”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Compatibilidade entre tempo disponível e complexidade técnica; Dependência de fatores externos (clima, aprovações, parcerias); Existência de folgas e planos de contingência; Impacto de atrasos sobre entregas críticas. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco Logístico",
+    "descricao": "Dependência de insumos, transporte, armazenamento ou suporte operacional.",
+    "prompt": "Analise o projeto e identifique riscos logísticos que possam comprometer sua execução. Esta análise refere-se ao tipo “Risco Logístico”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Dependência de fornecedores únicos ou insumos importados; Condições de transporte, entrega e armazenamento; Riscos de falhas na cadeia de suprimentos; Alternativas de mitigação logística previstas. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco Intelectual",
+    "descricao": "Restrições relacionadas à propriedade intelectual, direitos autorais e acesso a dados.",
+    "prompt": "Analise o texto e identifique riscos de propriedade intelectual ou de acesso a dados. Esta análise refere-se ao tipo “Risco Intelectual”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Existência de dados, tecnologias ou obras com restrição de uso; Questões de confidencialidade, patentes ou licenciamento; Riscos de violação de direitos autorais ou de sigilo; Estratégias de proteção e conformidade previstas. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco Científico",
+    "descricao": "Incerteza quanto à confirmação de hipóteses e obtenção dos resultados esperados.",
+    "prompt": "Analise o conteúdo científico do projeto e identifique riscos associados à validade das hipóteses e resultados. Esta análise refere-se ao tipo “Risco Científico”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Grau de incerteza científica e possibilidade de não comprovação; Robustez teórica e experimental das abordagens propostas; Valor potencial de resultados intermediários ou negativos; Estratégias para mitigação e aproveitamento de resultados parciais. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Aplicação ou Transferência",
+    "descricao": "Dificuldades na disseminação, aplicação ou transferência dos resultados de pesquisa.",
+    "prompt": "Analise o projeto e identifique riscos relacionados à aplicação prática ou transferência dos resultados obtidos. Esta análise refere-se ao tipo “Risco na Aplicação ou Transferência de Resultados”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Clareza quanto ao público-alvo e ao potencial de aplicação; Barreiras tecnológicas, regulatórias ou de mercado; Dependência de parceiros externos para validação ou adoção; Estratégias de mitigação e planos de transferência de tecnologia ou conhecimento. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Biossegurança e Biocontenção",
+    "descricao": "Riscos associados ao manuseio, armazenamento e descarte de agentes biológicos, patogênicos, material genético ou animais de laboratório.",
+    "prompt": "Analise o texto e identifique riscos de biossegurança e biocontenção. Esta análise refere-se ao tipo “Risco de Biosegurança e Biocontenção”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Existência de agentes biológicos, amostras clínicas ou organismos geneticamente modificados; Conformidade com normas NB-2, NB-3, NB-4 e diretrizes da ANVISA, OMS ou NIH; Procedimentos de contenção, transporte e descarte; Medidas de segurança e planos de contingência descritos. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco Ético-Clínico",
+    "descricao": "Riscos decorrentes de falhas na condução ética de estudos com seres humanos ou animais.",
+    "prompt": "Analise o texto e identifique riscos éticos e clínicos. Esta análise refere-se ao tipo “Risco Ético-Clínico”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Consentimento informado; Inclusão de grupos vulneráveis; Revisão por comitês de ética; Riscos físicos, psicológicos ou sociais; Estratégias de mitigação e monitoramento ético. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Conformidade Regulatória em Saúde",
+    "descricao": "Descumprimento de normas e exigências de agências reguladoras.",
+    "prompt": "Analise o projeto quanto a riscos de não conformidade regulatória. Esta análise refere-se ao tipo “Risco de Conformidade Regulatória em Saúde”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Necessidade de registro ou autorização; Adequação dos protocolos às normas; Existência de plano de compliance; Consequências legais e operacionais. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Qualidade dos Dados Clínicos",
+    "descricao": "Erros, omissões ou inconsistências em dados clínicos e experimentais.",
+    "prompt": "Analise os métodos de coleta e gestão de dados do projeto. Esta análise refere-se ao tipo “Risco de Qualidade dos Dados Clínicos”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Procedimentos de registro e rastreabilidade; Controle de qualidade e auditorias; Riscos de viés ou perda de dados; Estratégias de mitigação. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Privacidade e Proteção de Dados",
+    "descricao": "Violação de privacidade e uso inadequado de dados pessoais e sensíveis.",
+    "prompt": "Analise o texto e identifique riscos de privacidade e proteção de dados pessoais e sensíveis. Esta análise refere-se ao tipo “Risco de Privacidade e Proteção de Dados”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Conformidade com LGPD/HIPAA; Segurança cibernética; Anonimização e consentimento; Estratégias de resposta a incidentes. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Segurança da Informação",
+    "descricao": "Vulnerabilidades em sistemas que armazenam ou transmitem dados científicos.",
+    "prompt": "Analise o projeto e identifique riscos de cibersegurança e integridade da informação. Esta análise refere-se ao tipo “Risco de Segurança da Informação”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Segurança de bancos de dados; Autenticação e criptografia; Riscos de ataques; Estratégias de backup e recuperação. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Cadeia de Suprimentos Biomédica",
+    "descricao": "Dependência de fornecedores, reagentes ou equipamentos críticos.",
+    "prompt": "Analise o projeto e identifique riscos na cadeia de suprimentos biomédica. Esta análise refere-se ao tipo “Risco de Cadeia de Suprimentos Biomédica”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Dependência de fornecedores únicos; Logística e alfândega; Alternativas e contingência; Impacto na execução. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Transferência e Comercialização de Tecnologia",
+    "descricao": "Dificuldades em transformar resultados de pesquisa em produtos ou patentes.",
+    "prompt": "Analise o texto e identifique riscos de transferência de tecnologia e comercialização. Esta análise refere-se ao tipo “Risco de Transferência e Comercialização de Tecnologia”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Plano de PI; Parcerias; Barreiras regulatórias e de mercado; Estratégias de mitigação. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Reprodutibilidade e Validação Científica",
+    "descricao": "Dificuldade em reproduzir ou validar resultados experimentais.",
+    "prompt": "Analise o texto e identifique riscos de reprodutibilidade e validação científica. Esta análise refere-se ao tipo “Risco de Reprodutibilidade e Validação Científica”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Detalhamento de protocolos; Uso de controles; Compartilhamento de dados; Estratégias de mitigação. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Impacto Socioambiental e Sustentabilidade",
+    "descricao": "Danos ambientais ou ocupacionais causados pela execução do projeto.",
+    "prompt": "Analise o texto e identifique riscos de impacto socioambiental e sustentabilidade. Esta análise refere-se ao tipo “Risco de Impacto Socioambiental e Sustentabilidade”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Gerenciamento de resíduos; Conformidade ambiental; Uso de recursos; Estratégias de mitigação. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco Reputacional Institucional",
+    "descricao": "Danos à imagem e credibilidade da instituição.",
+    "prompt": "Analise o texto e identifique riscos reputacionais para a instituição. Esta análise refere-se ao tipo “Risco Reputacional Institucional”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Falhas éticas ou científicas; Exposição pública indevida; Relação com parceiros; Estratégias de comunicação institucional. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Comunicação Científica e Transparência",
+    "descricao": "Divulgação inadequada, incompleta ou precoce de resultados.",
+    "prompt": "Analise o texto e identifique riscos de comunicação científica e transparência. Esta análise refere-se ao tipo “Risco de Comunicação Científica e Transparência”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Planejamento de divulgação; Revisão por pares; Riscos de distorção; Boas práticas de comunicação científica. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Equidade e Acesso em Pesquisas Clínicas",
+    "descricao": "Sub-representação de grupos populacionais ou falta de equidade.",
+    "prompt": "Analise o texto e identifique riscos de equidade e representatividade. Esta análise refere-se ao tipo “Risco de Equidade e Acesso em Pesquisas Clínicas”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Inclusão de minorias; Impactos éticos; Políticas de equidade; Estratégias de reequilíbrio amostral. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  },
+  {
+    "nome_risco": "Risco de Continuidade Institucional e Governança",
+    "descricao": "Falhas na governança, gestão e continuidade administrativa.",
+    "prompt": "Analise o texto e identifique riscos de continuidade institucional e governança. Esta análise refere-se ao tipo “Risco de Continuidade Institucional e Governança”. Caso não seja identificado tal risco, indique na resposta “Risco Não Identificado”. Avalie: Estrutura de liderança; Dependência de decisores; Planos de sucessão; Estratégias para garantir continuidade. Apresente o resultado no formato: [Descrição do risco identificado], [Probabilidade], [Impacto], [Sugestão de mitigação]."
+  }
+]
