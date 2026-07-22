@@ -23,6 +23,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json([], { status: 404 });
   }
 
+  if (session.role !== "admin" && projectCheck.rows[0].id_user !== session.userId) {
+    return NextResponse.json({ error: "Você não tem acesso a este documento." }, { status: 403 });
+  }
+
   const chats = await getProjectChats(projectId);
   const threads = await Promise.all(
     chats.map(async (c) => {
@@ -57,6 +61,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   if (session.role !== "admin" && project.id_user !== session.userId) {
     return NextResponse.json({ error: "Você não tem acesso a este documento." }, { status: 403 });
+  }
+
+  // Validação de segurança: se um chatId for fornecido, confirma que ele pertence a este projeto
+  if (chatId) {
+    const checkChat = await pool.query("SELECT id_chat FROM chat WHERE id_chat = $1 AND id_project = $2", [
+      Number(chatId),
+      projectId,
+    ]);
+    if (checkChat.rows.length === 0) {
+      return NextResponse.json({ error: "Esta conversa não pertence a este projeto." }, { status: 403 });
+    }
   }
 
   // Ação 1: Criar novo tópico de conversa no Banco de Dados
@@ -98,13 +113,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       await updateChatTitle(currentChatId, title);
     }
 
-    // Grava a pergunta do usuário no Banco (source: 1 = User)
+    // Grava a pergunta do usuário no Banco
     await addChatInteraction(currentChatId, cleanQuestion, 1);
 
     // Pergunta ao modelo GPT-5.1
     const answer = await answerQuestion(project.text, cleanQuestion, chatHistory);
 
-    // Grava a resposta da IA no Banco (source: 2 = AI)
+    // Grava a resposta da IA no Banco
     await addChatInteraction(currentChatId, answer, 2);
 
     return NextResponse.json({ answer, chatId: String(currentChatId) });
