@@ -98,7 +98,14 @@ export async function getDocumentHistory(id: string): Promise<DocumentHistoryEnt
     analyzedBy: string;
     overallScore: number;
     tier: DocumentHistoryEntry["tier"];
-    findings: { riskName: string; score: number; tier: DocumentHistoryEntry["tier"]; description: string }[];
+    findings: {
+      riskName: string;
+      score: number;
+      tier: DocumentHistoryEntry["tier"];
+      probability?: string;
+      impact?: string;
+      description: string;
+    }[];
   }
   try {
     const raw = await api<ApiHistoryEntry[]>(`/api/projects/${id}/history`);
@@ -118,6 +125,8 @@ export async function getDocumentHistory(id: string): Promise<DocumentHistoryEnt
         riskName: f.riskName,
         score: f.score,
         tier: f.tier,
+        probability: f.probability || "Média",
+        impact: f.impact || "Médio",
         description: f.description,
         mitigation: "",
         excerpts: [],

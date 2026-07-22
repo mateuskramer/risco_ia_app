@@ -1,4 +1,5 @@
 import { pool } from "@/lib/db";
+import { cleanFileName } from "@/lib/utils";
 
 export type Tier = "baixo" | "medio" | "alto";
 
@@ -115,7 +116,7 @@ export function overallScore(findings: FindingRow[]): number {
 // Histórico completo: todas as rodadas de análise
 export async function getProjectHistory(projectId: number) {
   const { rows } = await pool.query(
-    `SELECT pr.created_at, pr.id_risk, r.name AS risk_name, pr.level, pr.level_description, pr.output, pr.analyzed_by
+    `SELECT pr.created_at, pr.id_risk, r.name AS risk_name, pr.level, pr.level_description, pr.probability, pr.output, pr.analyzed_by
      FROM project_risk pr
      JOIN risk r ON r.id_risk = pr.id_risk
      WHERE pr.id_project = $1
@@ -144,6 +145,8 @@ export async function getProjectHistory(projectId: number) {
           riskName: f.risk_name,
           score: Number(f.level),
           tier: f.level_description,
+          probability: f.probability || f.output?.probabilidade || "Média",
+          impact: f.output?.impacto || "Médio",
           description: f.output?.justificativa ?? "",
         })),
       };
@@ -155,7 +158,7 @@ export function mapProjectRow(row: ProjectRow, currentVersion: number) {
   const score = overallScore(findings);
   return {
     id: String(row.id_project),
-    fileName: row.title,
+    fileName: cleanFileName(row.title),
     ownerId: String(row.owner_id),
     ownerName: row.owner_name,
     uploadedAt: row.date,
