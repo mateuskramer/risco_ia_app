@@ -48,7 +48,7 @@ pode rodar de novo em cima de um banco já existente sem perder dado:
 cd create-bd
 pip install psycopg2-binary
 python create_db.py
-python seed_risks.py     # popula os riscos padrão (opcional)
+python seed_risks.py    
 ```
 
 ## Contas
