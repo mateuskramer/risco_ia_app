@@ -100,30 +100,35 @@ export async function getDocumentHistory(id: string): Promise<DocumentHistoryEnt
     tier: DocumentHistoryEntry["tier"];
     findings: { riskName: string; score: number; tier: DocumentHistoryEntry["tier"]; description: string }[];
   }
-  const raw = await api<ApiHistoryEntry[]>(`/api/projects/${id}/history`);
-  return raw.map((h) => ({
-    id: `${id}-v${h.version}`,
-    documentId: id,
-    version: h.version,
-    action: h.version === 1 ? "upload" : "reanalise",
-    actorId: "",
-    actorName: h.analyzedBy,
-    at: h.at,
-    note: h.version === 1 ? "Upload do documento e primeira análise dos agentes de IA." : "Reanálise solicitada pelo usuário.",
-    overallScore: h.overallScore,
-    tier: h.tier,
-    findings: h.findings.map((f, i) => ({
-      id: `${id}-v${h.version}-${i}`,
-      riskName: f.riskName,
-      score: f.score,
-      tier: f.tier,
-      description: f.description,
-      mitigation: "",
-      excerpts: [],
-      status: "aberto",
-      agentPromptId: null,
-    })),
-  }));
+  try {
+    const raw = await api<ApiHistoryEntry[]>(`/api/projects/${id}/history`);
+    return raw.map((h) => ({
+      id: `${id}-v${h.version}`,
+      documentId: id,
+      version: h.version,
+      action: h.version === 1 ? "upload" : "reanalise",
+      actorId: "",
+      actorName: h.analyzedBy,
+      at: h.at,
+      note: h.version === 1 ? "Upload do documento e primeira análise dos agentes de IA." : "Reanálise solicitada pelo usuário.",
+      overallScore: h.overallScore,
+      tier: h.tier,
+      findings: h.findings.map((f, i) => ({
+        id: `${id}-v${h.version}-${i}`,
+        riskName: f.riskName,
+        score: f.score,
+        tier: f.tier,
+        description: f.description,
+        mitigation: "",
+        excerpts: [],
+        status: "aberto",
+        agentPromptId: null,
+      })),
+    }));
+  } catch (err) {
+    console.error("Erro ao obter histórico do documento:", err);
+    return [];
+  }
 }
 
 // owner não é mais passado pelo cliente — o backend identifica quem é pelo cookie de sessão.

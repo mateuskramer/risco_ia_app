@@ -11,7 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const owner = await pool.query("SELECT id_user FROM project WHERE id_project = $1", [projectId]);
   if (owner.rows.length === 0) {
-    return NextResponse.json([], { status: 404 });
+    return NextResponse.json([]);
   }
   if (session.role !== "admin" && owner.rows[0].id_user !== session.userId) {
     return NextResponse.json({ error: "Você não tem acesso a este documento." }, { status: 403 });
