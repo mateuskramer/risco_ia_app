@@ -47,7 +47,6 @@ export async function POST(req: NextRequest) {
   // "Relatório" funcionarem mesmo se a IA falhar ou ainda nem tiver rodado.
   const client = await pool.connect();
   let projectId: number;
-  let sectionId: number;
   try {
     await client.query("BEGIN");
     const projectResult = await client.query(
@@ -56,13 +55,6 @@ export async function POST(req: NextRequest) {
       [session.userId, file.name, documentText, buffer]
     );
     projectId = projectResult.rows[0].id_project;
-
-    const sectionResult = await client.query(
-      `INSERT INTO project_section (id_project, description, content) VALUES ($1, $2, $3)
-       RETURNING id_project_section`,
-      [projectId, "Documento completo", documentText]
-    );
-    sectionId = sectionResult.rows[0].id_project_section;
     await client.query("COMMIT");
   } catch (err) {
     await client.query("ROLLBACK");
@@ -97,13 +89,16 @@ export async function POST(req: NextRequest) {
     const analyzedAt = new Date(); // mesmo timestamp pra todos os achados desta rodada = 1 "versão"
     for (const a of analyses) {
       await pool.query(
-        `INSERT INTO project_section_risk (id_risk, id_project_section, level, level_description, output, analyzed_by, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        `INSERT INTO project_risk (id_project, id_risk, level, level_description, probability, false_positive, solved, output, analyzed_by, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
         [
+          projectId,
           a.riskId,
-          sectionId,
           a.result.score,
           tierFromScore(a.result.score),
+          a.result.probabilidade || "media",
+          false,
+          false,
           JSON.stringify({
             justificativa: a.result.justificativa,
             probabilidade: a.result.probabilidade,

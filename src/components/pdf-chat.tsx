@@ -28,8 +28,23 @@ export function PdfChat({ documentId }: { documentId: string }) {
   const [historyOpen, setHistoryOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Carrega os tópicos de conversa do localStorage
-  useEffect(() => {
+  // Carrega os tópicos de conversa da API do Banco de Dados
+  async function loadThreadsFromApi() {
+    try {
+      const res = await fetch(`/api/projects/${documentId}/chat`, { credentials: "include" });
+      if (res.ok) {
+        const data: ChatThread[] = await res.json();
+        if (data.length > 0) {
+          setThreads(data);
+          setActiveThreadId(data[0].id);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error("Erro ao carregar conversas da API:", e);
+    }
+
+    // Fallback para localStorage caso seja ambiente offline
     try {
       const saved = localStorage.getItem(`chat_threads_${documentId}`);
       if (saved) {
@@ -37,50 +52,84 @@ export function PdfChat({ documentId }: { documentId: string }) {
         setThreads(parsed);
         if (parsed.length > 0) {
           setActiveThreadId(parsed[0].id);
-        } else {
-          createNewThread([]);
+          return;
         }
-      } else {
-        createNewThread([]);
       }
     } catch (e) {
-      console.error("Erro ao carregar conversas:", e);
-      createNewThread([]);
+      console.error("Erro ao ler localStorage:", e);
     }
+
+    // Se não tiver nenhuma, cria uma inicial
+    createNewThread();
+  }
+
+  useEffect(() => {
+    loadThreadsFromApi();
   }, [documentId]);
 
-  // Persiste as conversas no localStorage
+  // Persiste no localStorage em paralelo para cache imediato no front
   function saveThreadsToStorage(updatedThreads: ChatThread[]) {
     setThreads(updatedThreads);
     try {
       localStorage.setItem(`chat_threads_${documentId}`, JSON.stringify(updatedThreads));
     } catch (e) {
-      console.error("Erro ao salvar conversas:", e);
+      console.error("Erro ao salvar no localStorage:", e);
     }
   }
 
-  function createNewThread(existingThreads = threads) {
-    const newThread: ChatThread = {
+  async function createNewThread() {
+    try {
+      const res = await fetch(`/api/projects/${documentId}/chat`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create_thread", title: "Nova conversa" }),
+      });
+      if (res.ok) {
+        const newThread: ChatThread = await res.json();
+        const updated = [newThread, ...threads];
+        saveThreadsToStorage(updated);
+        setActiveThreadId(newThread.id);
+        return;
+      }
+    } catch (e) {
+      console.error("Erro ao criar conversa no banco:", e);
+    }
+
+    // Fallback local se API falhar
+    const localThread: ChatThread = {
       id: `thread_${Date.now()}`,
       title: "Nova conversa",
       createdAt: new Date().toISOString(),
       messages: [],
     };
-    const updated = [newThread, ...existingThreads];
+    const updated = [localThread, ...threads];
     saveThreadsToStorage(updated);
-    setActiveThreadId(newThread.id);
+    setActiveThreadId(localThread.id);
   }
 
-  function deleteThread(threadId: string, e: React.MouseEvent) {
+  async function deleteThread(threadId: string, e: React.MouseEvent) {
     e.stopPropagation();
+    try {
+      await fetch(`/api/projects/${documentId}/chat`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete_thread", chatId: threadId }),
+      });
+    } catch (e) {
+      console.error("Erro ao excluir no banco:", e);
+    }
+
     const updated = threads.filter((t) => t.id !== threadId);
     saveThreadsToStorage(updated);
     toast.success("Conversa removida.");
+
     if (activeThreadId === threadId) {
       if (updated.length > 0) {
         setActiveThreadId(updated[0].id);
       } else {
-        createNewThread([]);
+        createNewThread();
       }
     }
   }
@@ -117,7 +166,11 @@ export function PdfChat({ documentId }: { documentId: string }) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, history: historyBeforeThis }),
+        body: JSON.stringify({
+          chatId: activeThread.id,
+          question,
+          history: historyBeforeThis,
+        }),
       });
 
       if (!res.ok) {
@@ -129,7 +182,14 @@ export function PdfChat({ documentId }: { documentId: string }) {
       const assistantMessage: ChatMessage = { role: "assistant", content: data.answer };
 
       const updatedThreadsAfterSend = updatedThreadsBeforeSend.map((t) =>
-        t.id === activeThread.id ? { ...t, title: newTitle, messages: [...newMessages, assistantMessage] } : t
+        t.id === activeThread.id
+          ? {
+              ...t,
+              id: data.chatId || t.id,
+              title: newTitle,
+              messages: [...newMessages, assistantMessage],
+            }
+          : t
       );
       saveThreadsToStorage(updatedThreadsAfterSend);
     } catch (err) {

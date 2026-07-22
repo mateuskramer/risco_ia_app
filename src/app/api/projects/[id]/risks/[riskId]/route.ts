@@ -29,21 +29,25 @@ export async function PATCH(
     return NextResponse.json({ error: "Voce so pode atualizar riscos de documentos que enviou." }, { status: 403 });
   }
 
+  const isSolved = status === "resolvido";
+  const isFalsePositive = status === "falso_positivo";
+
   const updated = await pool.query(
     `WITH latest AS (
-       SELECT psr.id_project_section_risk
-       FROM project_section_risk psr
-       JOIN project_section ps ON ps.id_project_section = psr.id_project_section
-       WHERE ps.id_project = $1 AND psr.id_risk = $2
-       ORDER BY psr.created_at DESC
+       SELECT pr.id_project_risk
+       FROM project_risk pr
+       WHERE pr.id_project = $1 AND pr.id_risk = $2
+       ORDER BY pr.created_at DESC
        LIMIT 1
      )
-     UPDATE project_section_risk psr
-     SET output = jsonb_set(COALESCE(psr.output, '{}'::jsonb), '{status}', to_jsonb($3::text), true)
+     UPDATE project_risk pr
+     SET output = jsonb_set(COALESCE(pr.output, '{}'::jsonb), '{status}', to_jsonb($3::text), true),
+         solved = $4,
+         false_positive = $5
      FROM latest
-     WHERE psr.id_project_section_risk = latest.id_project_section_risk
-     RETURNING psr.id_project_section_risk`,
-    [projectId, riskIdNumber, status]
+     WHERE pr.id_project_risk = latest.id_project_risk
+     RETURNING pr.id_project_risk`,
+    [projectId, riskIdNumber, status, isSolved, isFalsePositive]
   );
   if (updated.rows.length === 0) {
     return NextResponse.json({ error: "Risco nao encontrado neste documento." }, { status: 404 });
@@ -51,10 +55,9 @@ export async function PATCH(
 
   const [row] = await fetchProjectsWithLatestFindings(projectId);
   const { rows } = await pool.query(
-    `SELECT COUNT(DISTINCT psr.created_at) AS n
-     FROM project_section_risk psr
-     JOIN project_section ps ON ps.id_project_section = psr.id_project_section
-     WHERE ps.id_project = $1`,
+    `SELECT COUNT(DISTINCT pr.created_at) AS n
+     FROM project_risk pr
+     WHERE pr.id_project = $1`,
     [projectId]
   );
   return NextResponse.json(mapProjectRow(row, Number(rows[0]?.n ?? 1) || 1));

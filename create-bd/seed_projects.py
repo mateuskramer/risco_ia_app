@@ -119,15 +119,6 @@ def main() -> None:
                 )
                 project_id = cur.fetchone()[0]
 
-                # Insere a seção padrão
-                cur.execute(
-                    """
-                    INSERT INTO project_section (id_project, description, content)
-                    VALUES (%s, %s, %s)
-                    """,
-                    (project_id, "Documento completo", text)
-                )
-
                 print(f"Projeto '{filename}' cadastrado com sucesso! ID: {project_id}")
                 inserted_count += 1
 

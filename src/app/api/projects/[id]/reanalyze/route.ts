@@ -32,15 +32,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
   const documentText: string = projectResult.rows[0].text;
 
-  const sectionResult = await pool.query(
-    "SELECT id_project_section FROM project_section WHERE id_project = $1 LIMIT 1",
-    [projectId]
-  );
-  if (sectionResult.rows.length === 0) {
-    return NextResponse.json({ error: "Documento sem seção associada." }, { status: 422 });
-  }
-  const sectionId = sectionResult.rows[0].id_project_section;
-
   const risksResult = await pool.query(
     "SELECT id_risk, name, prompt FROM risk WHERE active = true ORDER BY id_risk"
   );
@@ -59,19 +50,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const analyses = await analyzeAllRisks(documentText, risks);
 
-    // Cada reanálise é um INSERT novo, nunca um UPDATE — a rodada anterior
-    // continua intacta no histórico (ver project_section_risk). E se o Gemini
-    // falhar no meio, o ROLLBACK abaixo garante que não fica uma rodada pela metade.
+    // Cada reanálise é um INSERT novo na tabela project_risk
     const analyzedAt = new Date();
     for (const a of analyses) {
       await client.query(
-        `INSERT INTO project_section_risk (id_risk, id_project_section, level, level_description, output, analyzed_by, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        `INSERT INTO project_risk (id_project, id_risk, level, level_description, probability, false_positive, solved, output, analyzed_by, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
         [
+          projectId,
           a.riskId,
-          sectionId,
           a.result.score,
           tierFromScore(a.result.score),
+          a.result.probabilidade || "media",
+          false,
+          false,
           JSON.stringify({
             justificativa: a.result.justificativa,
             probabilidade: a.result.probabilidade,
