@@ -78,6 +78,37 @@ export function buildReportMarkdown(data: ReportData): string {
 
 // ---------- PDF (pdf-lib — sem precisar de navegador/Chromium) ----------
 
+// As fontes padrão do pdf-lib (Helvetica) só suportam WinAnsiEncoding, que
+// NÃO é Unicode completo — emoji, setas, caracteres CJK, ou caracteres de
+// controle (comuns em texto extraído de PDF real, ou eventualmente
+// devolvidos pelo modelo) fazem o drawText() quebrar com
+// "WinAnsi cannot encode...". Isso substitui o que dá pra substituir por um
+// equivalente e REMOVE o resto (em vez de trocar por "?"), testando
+// caractere a caractere com a própria fonte — nunca deixa a geração do PDF
+// quebrar por causa de um caractere inesperado.
+function sanitizeForPdf(text: string, font: PDFFont): string {
+  const normalized = text
+    .normalize("NFKC")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\u2192/g, "->")
+    .replace(/\u2190/g, "<-")
+    .replace(/[\u2022\u25CF]/g, "-")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "");
+
+  let result = "";
+  for (const ch of normalized) {
+    try {
+      font.widthOfTextAtSize(ch, 10); // só usado pra testar se a fonte codifica
+      result += ch;
+    } catch {
+      // caractere não suportado (emoji, CJK, etc.) — remove em vez de
+      // mostrar um "?" no lugar
+    }
+  }
+  return result.replace(/[ \t]{2,}/g, " ").trim();
+}
+
 function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
   const paragraphs = text.split("\n");
   const lines: string[] = [];
@@ -126,7 +157,8 @@ export async function buildReportPdf(data: ReportData): Promise<Uint8Array> {
     const size = opts.size ?? 11;
     const useFont = opts.bold ? fontBold : font;
     const color = opts.color ? rgb(...opts.color) : rgb(0.12, 0.14, 0.16);
-    for (const line of wrapText(text, useFont, size, maxWidth)) {
+    const safeText = sanitizeForPdf(text, useFont);
+    for (const line of wrapText(safeText, useFont, size, maxWidth)) {
       ensureSpace(size + 4);
       page.drawText(line, { x: margin, y, size, font: useFont, color });
       y -= size + 4;
