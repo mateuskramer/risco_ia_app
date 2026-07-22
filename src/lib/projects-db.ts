@@ -1,4 +1,5 @@
 import { pool } from "@/lib/db";
+import { cleanFileName } from "@/lib/utils";
 
 export type Tier = "baixo" | "medio" | "alto";
 
@@ -116,7 +117,7 @@ export function overallScore(findings: FindingRow[]): number {
 // Histórico completo: todas as rodadas de análise
 export async function getProjectHistory(projectId: number) {
   const { rows } = await pool.query(
-    `SELECT pr.created_at, pr.id_risk, r.name AS risk_name, pr.level, pr.level_description, pr.output, pr.analyzed_by
+    `SELECT pr.created_at, pr.id_risk, r.name AS risk_name, pr.level, pr.level_description, pr.probability, pr.output, pr.analyzed_by
      FROM project_risk pr
      JOIN risk r ON r.id_risk = pr.id_risk
      WHERE pr.id_project = $1
@@ -145,6 +146,8 @@ export async function getProjectHistory(projectId: number) {
           riskName: f.risk_name,
           score: Number(f.level),
           tier: f.level_description,
+          probability: f.probability || f.output?.probabilidade || "Média",
+          impact: f.output?.impacto || "Médio",
           description: f.output?.justificativa ?? "",
         })),
       };
@@ -155,16 +158,16 @@ export function mapProjectRow(row: ProjectRow, currentVersion: number) {
   const findings = row.findings ?? [];
   const score = overallScore(findings);
   const description = (row.abstract ?? "").trim();
-  // `title` guarda o NOME DO ARQUIVO. Descrição é opcional; se não houver,
-  // a UI usa o próprio arquivo sem `.pdf` como título — mas `fileName`
-  // continua sendo o nome com `.pdf` pra download/relatório/etc. seguirem
-  // referindo ao arquivo real.
-  const fileNameRaw = row.title;
-  const fileNameNoExt = fileNameRaw.replace(/\.pdf$/i, "");
+  // `fileName` sempre passa por cleanFileName (protege registros antigos
+  // salvos antes desse fix). `title` é o mesmo nome limpo, sem `.pdf` — é
+  // o que aparece na UI; `fileName` continua com `.pdf` pra
+  // download/relatório referirem ao arquivo real.
+  const cleanedFileName = cleanFileName(row.title);
+  const titleNoExt = cleanedFileName.replace(/\.pdf$/i, "");
   return {
     id: String(row.id_project),
-    fileName: fileNameRaw,
-    title: fileNameNoExt,
+    fileName: cleanedFileName,
+    title: titleNoExt,
     description,
     ownerId: String(row.owner_id),
     ownerName: row.owner_name,

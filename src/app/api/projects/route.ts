@@ -4,10 +4,13 @@ import { extractPdfText } from "@/lib/pdf-text";
 import { analyzeAllRisks } from "@/lib/agents/analyze-risk";
 import { requireSession, isSessionPayload } from "@/lib/auth";
 import { fetchProjectsWithLatestFindings, mapProjectRow, tierFromScore } from "@/lib/projects-db";
+import { cleanFileName } from "@/lib/utils";
 
 async function countVersions(projectId: number): Promise<number> {
   const { rows } = await pool.query(
-    `SELECT COUNT(DISTINCT created_at) AS n FROM project_risk WHERE id_project = $1`,
+    `SELECT COUNT(DISTINCT pr.created_at) AS n
+     FROM project_risk pr
+     WHERE pr.id_project = $1`,
     [projectId]
   );
   return Number(rows[0]?.n ?? 0) || 1;
@@ -47,11 +50,12 @@ export async function POST(req: NextRequest) {
   const client = await pool.connect();
   let projectId: number;
   try {
+    const cleanTitle = cleanFileName(file.name);
     await client.query("BEGIN");
     const projectResult = await client.query(
       `INSERT INTO project (id_user, title, abstract, text, midia) VALUES ($1, $2, $3, $4, $5)
        RETURNING id_project`,
-      [session.userId, file.name, description, documentText, buffer]
+      [session.userId, cleanTitle, description, documentText, buffer]
     );
     projectId = projectResult.rows[0].id_project;
     await client.query("COMMIT");

@@ -28,6 +28,13 @@ SEED_DATA_DIR = os.path.join(os.path.dirname(__file__), "seed-data")
 
 ADMIN_PASSWORD_HASH = "$2b$12$gU8jLTp2L2.o/LqDlWxfX.3gWokZKhL8qxP1PgXkWlC/W8McsvHgq"
 
+import re
+
+def clean_filename(filename: str) -> str:
+    if not filename:
+        return ""
+    return re.sub(r'#U([0-9a-fA-F]{4})', lambda m: chr(int(m.group(1), 16)), filename)
+
 def get_database_url() -> str:
     url = os.environ.get("DATABASE_URL")
     if url:
@@ -91,13 +98,14 @@ def main() -> None:
 
             for filename in pdf_files:
                 pdf_path = os.path.join(SEED_DATA_DIR, filename)
+                clean_title = clean_filename(filename)
 
                 # Verifica se o projeto com esse título já existe
-                cur.execute("SELECT id_project FROM project WHERE title = %s", (filename,))
+                cur.execute("SELECT id_project FROM project WHERE title = %s OR title = %s", (clean_title, filename))
                 project_row = cur.fetchone()
 
                 if project_row:
-                    print(f"Projeto '{filename}' já está cadastrado no banco. Pulando.")
+                    print(f"Projeto '{clean_title}' já está cadastrado no banco. Pulando.")
                     skipped_count += 1
                     continue
 
@@ -115,11 +123,11 @@ def main() -> None:
                     VALUES (%s, %s, %s, %s)
                     RETURNING id_project
                     """,
-                    (user_id, filename, text, psycopg2.Binary(pdf_bytes))
+                    (user_id, clean_title, text, psycopg2.Binary(pdf_bytes))
                 )
                 project_id = cur.fetchone()[0]
 
-                print(f"Projeto '{filename}' cadastrado com sucesso! ID: {project_id}")
+                print(f"Projeto '{clean_title}' cadastrado com sucesso! ID: {project_id}")
                 inserted_count += 1
 
             print(f"\nConcluído! {inserted_count} projetos inseridos, {skipped_count} projetos pulados.")

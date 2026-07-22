@@ -6,7 +6,9 @@ import { fetchProjectsWithLatestFindings, mapProjectRow, tierFromScore } from "@
 
 async function countVersions(projectId: number): Promise<number> {
   const { rows } = await pool.query(
-    `SELECT COUNT(DISTINCT created_at) AS n FROM project_risk WHERE id_project = $1`,
+    `SELECT COUNT(DISTINCT pr.created_at) AS n
+     FROM project_risk pr
+     WHERE pr.id_project = $1`,
     [projectId]
   );
   return Number(rows[0]?.n ?? 0);
