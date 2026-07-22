@@ -145,7 +145,7 @@ export function AppSidebar() {
                     <Link
                       key={p.id}
                       href={`/projetos/${p.id}`}
-                      title={p.fileName}
+                      title={p.title}
                       className={cn(
                         "group flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors truncate",
                         isCurrentProject
@@ -154,7 +154,7 @@ export function AppSidebar() {
                       )}
                     >
                       <FileText className="h-3.5 w-3.5 shrink-0 opacity-70 group-hover:opacity-100" />
-                      <span className="truncate">{p.fileName}</span>
+                      <span className="truncate">{p.title}</span>
                     </Link>
                   );
                 })

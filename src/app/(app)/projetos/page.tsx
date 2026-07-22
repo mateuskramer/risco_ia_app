@@ -49,7 +49,13 @@ export default function ProjetosPage() {
     const base = isAdmin ? docs : docs.filter((d) => d.ownerId === session?.userId);
     if (!query.trim()) return base;
     const q = query.toLowerCase();
-    return base.filter((d) => d.fileName.toLowerCase().includes(q) || d.ownerName.toLowerCase().includes(q));
+    return base.filter(
+      (d) =>
+        d.title.toLowerCase().includes(q) ||
+        d.description.toLowerCase().includes(q) ||
+        d.fileName.toLowerCase().includes(q) ||
+        d.ownerName.toLowerCase().includes(q)
+    );
   }, [docs, isAdmin, session, query]);
 
   async function handleReanalyze(id: string) {
@@ -89,7 +95,7 @@ export default function ProjetosPage() {
       <div className="relative max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder={isAdmin ? "Buscar por arquivo ou responsável…" : "Buscar por arquivo…"}
+          placeholder={isAdmin ? "Buscar por projeto, descrição ou responsável…" : "Buscar por projeto ou descrição…"}
           className="pl-9"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -114,7 +120,7 @@ export default function ProjetosPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Arquivo</TableHead>
+                  <TableHead>Projeto</TableHead>
                   {isAdmin && <TableHead>Enviado por</TableHead>}
                   <TableHead>Enviado em</TableHead>
                   <TableHead>Versão</TableHead>
@@ -129,9 +135,16 @@ export default function ProjetosPage() {
                   return (
                     <TableRow key={doc.id}>
                       <TableCell className="max-w-md break-words whitespace-normal">
-                        <Link href={`/projetos/${doc.id}`} className="flex items-start gap-2 font-medium hover:text-primary leading-snug">
+                        <Link href={`/projetos/${doc.id}`} className="flex items-start gap-2 hover:text-primary leading-snug">
                           <FileText className="h-4 w-4 shrink-0 text-muted-foreground mt-0.5" />
-                          <span className="break-all whitespace-normal">{doc.fileName}</span>
+                          <div className="flex min-w-0 flex-col gap-0.5">
+                            <span className="break-all whitespace-normal font-medium">{doc.title}</span>
+                            {doc.description && (
+                              <span className="text-xs font-normal text-muted-foreground line-clamp-2">
+                                {doc.description}
+                              </span>
+                            )}
+                          </div>
                         </Link>
                       </TableCell>
                       {isAdmin && <TableCell className="text-muted-foreground">{doc.ownerName}</TableCell>}

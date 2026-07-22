@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2, UploadCloud, FileText, Bot, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +25,7 @@ export function PdfUploadDialog({ onUploaded }: { onUploaded: (doc: RiskDocument
   const isAdmin = session?.role === "admin";
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [description, setDescription] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [checkingSetup, setCheckingSetup] = useState(true);
   const [hasActiveAgents, setHasActiveAgents] = useState(true);
@@ -44,7 +47,7 @@ export function PdfUploadDialog({ onUploaded }: { onUploaded: (doc: RiskDocument
     if (!session || !file) return;
     setAnalyzing(true);
     try {
-      const doc = await api.uploadDocument(file);
+      const doc = await api.uploadDocument(file, description);
       if (doc.warning) {
         toast.warning(doc.warning);
       } else {
@@ -53,6 +56,7 @@ export function PdfUploadDialog({ onUploaded }: { onUploaded: (doc: RiskDocument
       onUploaded(doc);
       setOpen(false);
       setFile(null);
+      setDescription("");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível enviar o projeto.");
     } finally {
@@ -122,6 +126,23 @@ export function PdfUploadDialog({ onUploaded }: { onUploaded: (doc: RiskDocument
                 </p>
               </>
             )}
+          </div>
+        )}
+
+        {!checkingSetup && ready && (
+          <div className="grid gap-2">
+            <Label htmlFor="project-description" className="text-sm">
+              Descrição <span className="text-muted-foreground">(opcional)</span>
+            </Label>
+            <Textarea
+              id="project-description"
+              placeholder="Uma frase sobre o que é este projeto — aparece na listagem, ajuda a identificar."
+              rows={3}
+              maxLength={300}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={analyzing}
+            />
           </div>
         )}
 

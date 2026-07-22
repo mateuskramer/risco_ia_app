@@ -7,10 +7,7 @@ import { fetchProjectsWithLatestFindings, mapProjectRow, tierFromScore } from "@
 
 async function countVersions(projectId: number): Promise<number> {
   const { rows } = await pool.query(
-    `SELECT COUNT(DISTINCT psr.created_at) AS n
-     FROM project_section_risk psr
-     JOIN project_section ps ON ps.id_project_section = psr.id_project_section
-     WHERE ps.id_project = $1`,
+    `SELECT COUNT(DISTINCT created_at) AS n FROM project_risk WHERE id_project = $1`,
     [projectId]
   );
   return Number(rows[0]?.n ?? 0) || 1;
@@ -35,6 +32,8 @@ export async function POST(req: NextRequest) {
 
   const form = await req.formData();
   const file = form.get("file");
+  const descriptionRaw = form.get("description");
+  const description = typeof descriptionRaw === "string" ? descriptionRaw.trim() : "";
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "Envie o campo file." }, { status: 400 });
   }
@@ -50,9 +49,9 @@ export async function POST(req: NextRequest) {
   try {
     await client.query("BEGIN");
     const projectResult = await client.query(
-      `INSERT INTO project (id_user, title, text, midia) VALUES ($1, $2, $3, $4)
+      `INSERT INTO project (id_user, title, abstract, text, midia) VALUES ($1, $2, $3, $4, $5)
        RETURNING id_project`,
-      [session.userId, file.name, documentText, buffer]
+      [session.userId, file.name, description, documentText, buffer]
     );
     projectId = projectResult.rows[0].id_project;
     await client.query("COMMIT");

@@ -118,10 +118,12 @@ export async function getDocumentHistory(id: string): Promise<DocumentHistoryEnt
         riskName: f.riskName,
         score: f.score,
         tier: f.tier,
+        probability: "",
+        impact: "",
         description: f.description,
         mitigation: "",
         excerpts: [],
-        status: "aberto",
+        status: "aberto" as const,
         agentPromptId: null,
       })),
     }));
@@ -135,9 +137,10 @@ export async function getDocumentHistory(id: string): Promise<DocumentHistoryEnt
 // O upload agora sempre "sucede" em salvar o projeto — se a análise falhar,
 // a resposta vem com um campo `warning` em vez de erro, e o projeto já
 // existe (dá pra abrir o PDF e tentar reanalisar depois).
-export async function uploadDocument(file: File): Promise<RiskDocument & { warning?: string }> {
+export async function uploadDocument(file: File, description = ""): Promise<RiskDocument & { warning?: string }> {
   const form = new FormData();
   form.append("file", file);
+  if (description.trim()) form.append("description", description.trim());
   return api<RiskDocument & { warning?: string }>("/api/projects", { method: "POST", body: form });
 }
 

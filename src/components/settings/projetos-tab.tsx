@@ -58,7 +58,14 @@ export function ProjetosTab() {
               <TableBody>
                 {docs.map((doc) => (
                   <TableRow key={doc.id}>
-                    <TableCell className="font-medium">{doc.fileName}</TableCell>
+                    <TableCell className="max-w-md">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-medium">{doc.title}</span>
+                        {doc.description && (
+                          <span className="text-xs text-muted-foreground line-clamp-2">{doc.description}</span>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{doc.ownerName}</TableCell>
                     <TableCell className="font-data text-sm text-muted-foreground">{formatDate(doc.uploadedAt)}</TableCell>
                     <TableCell className="font-data text-sm text-muted-foreground">v{doc.currentVersion}</TableCell>

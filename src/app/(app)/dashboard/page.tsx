@@ -194,7 +194,7 @@ export default function DashboardPage() {
                         <p>
                           <span className="font-medium">{h.actorName}</span> {ACTION_LABEL[h.action]}{" "}
                           <Link href={`/projetos/${h.documentId}`} className="font-medium text-primary hover:underline">
-                            {doc?.fileName ?? "projeto removido"}
+                            {doc?.title ?? "projeto removido"}
                           </Link>{" "}
                           <span className="font-data text-muted-foreground">(v{h.version})</span>
                         </p>

@@ -29,6 +29,7 @@ interface FindingRow {
 export interface ProjectRow {
   id_project: number;
   title: string;
+  abstract: string | null;
   date: string;
   owner_id: number;
   owner_name: string;
@@ -74,7 +75,7 @@ export async function fetchProjectsWithLatestFindings(
   const { rows } = await pool.query(
     `${LATEST_FINDINGS_CTE}
      SELECT
-       p.id_project, p.title, p.date, u.id_user AS owner_id, u.name AS owner_name,
+       p.id_project, p.title, p.abstract, p.date, u.id_user AS owner_id, u.name AS owner_name,
        COALESCE(
          json_agg(
            json_build_object(
@@ -94,7 +95,7 @@ export async function fetchProjectsWithLatestFindings(
      JOIN users u ON u.id_user = p.id_user
      LEFT JOIN latest ON latest.id_project = p.id_project
      ${whereClause}
-     GROUP BY p.id_project, p.title, p.date, u.id_user, u.name
+     GROUP BY p.id_project, p.title, p.abstract, p.date, u.id_user, u.name
      ORDER BY p.date DESC`,
     values
   );
@@ -153,9 +154,18 @@ export async function getProjectHistory(projectId: number) {
 export function mapProjectRow(row: ProjectRow, currentVersion: number) {
   const findings = row.findings ?? [];
   const score = overallScore(findings);
+  const description = (row.abstract ?? "").trim();
+  // `title` guarda o NOME DO ARQUIVO. Descrição é opcional; se não houver,
+  // a UI usa o próprio arquivo sem `.pdf` como título — mas `fileName`
+  // continua sendo o nome com `.pdf` pra download/relatório/etc. seguirem
+  // referindo ao arquivo real.
+  const fileNameRaw = row.title;
+  const fileNameNoExt = fileNameRaw.replace(/\.pdf$/i, "");
   return {
     id: String(row.id_project),
-    fileName: row.title,
+    fileName: fileNameRaw,
+    title: fileNameNoExt,
+    description,
     ownerId: String(row.owner_id),
     ownerName: row.owner_name,
     uploadedAt: row.date,

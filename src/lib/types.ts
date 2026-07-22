@@ -53,6 +53,8 @@ export interface DocumentHistoryEntry {
 export interface RiskDocument {
   id: string;
   fileName: string;
+  title: string;
+  description: string;
   ownerId: string;
   ownerName: string;
   uploadedAt: string;

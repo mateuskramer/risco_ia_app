@@ -163,11 +163,14 @@ export default function ProjetoDetailPage() {
       )}
 
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0 flex-1">
           <h2 className="flex items-center gap-2 text-xl font-semibold">
             <FileText className="h-5 w-5 text-muted-foreground" />
-            {doc.fileName}
+            {doc.title}
           </h2>
+          {doc.description && (
+            <p className="mt-1 text-sm text-muted-foreground">{doc.description}</p>
+          )}
           <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <User className="h-3.5 w-3.5" /> {doc.ownerName}
@@ -176,6 +179,7 @@ export default function ProjetoDetailPage() {
               <CalendarDays className="h-3.5 w-3.5" /> {formatDate(doc.uploadedAt)}
             </span>
             <span className="font-data">versão atual: v{doc.currentVersion}</span>
+            <span className="font-data text-xs">arquivo: {doc.fileName}</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
