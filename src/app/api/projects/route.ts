@@ -104,7 +104,14 @@ export async function POST(req: NextRequest) {
           sectionId,
           a.result.score,
           tierFromScore(a.result.score),
-          JSON.stringify({ justificativa: a.result.justificativa, trechos: a.result.trechos }),
+          JSON.stringify({
+            justificativa: a.result.justificativa,
+            probabilidade: a.result.probabilidade,
+            impacto: a.result.impacto,
+            mitigacao: a.result.mitigacao,
+            trechos: a.result.trechos,
+            status: "aberto",
+          }),
           session.name,
           analyzedAt,
         ]

@@ -6,6 +6,7 @@ export interface ReportFinding {
   score: number;
   tier: Tier;
   justificativa: string;
+  mitigacao?: string;
   trechos: { citacao: string; pagina: number | null }[];
 }
 
@@ -59,6 +60,9 @@ export function buildReportMarkdown(data: ReportData): string {
   for (const f of sorted) {
     lines.push(`### ${f.riskName} — ${f.score}/100 (${TIER_LABEL[f.tier]})`, "");
     lines.push(f.justificativa || "_Sem justificativa registrada._");
+    if (f.mitigacao) {
+      lines.push("", `**Sugestão de mitigação:** ${f.mitigacao}`);
+    }
     if (f.trechos.length > 0) {
       lines.push("", "**Trechos citados:**");
       for (const t of f.trechos) {
@@ -144,6 +148,9 @@ export async function buildReportPdf(data: ReportData): Promise<Uint8Array> {
   for (const f of sorted) {
     writeLine(`${f.riskName} — ${f.score}/100 (${TIER_LABEL[f.tier]})`, { size: 12, bold: true, gap: 3 });
     writeLine(f.justificativa || "Sem justificativa registrada.", { size: 10.5, gap: 4 });
+    if (f.mitigacao) {
+      writeLine(`Mitigação: ${f.mitigacao}`, { size: 10, color: [0.15, 0.45, 0.25], gap: 4 });
+    }
     for (const t of f.trechos) {
       writeLine(`"${t.citacao}"${t.pagina ? ` (pág. ${t.pagina})` : ""}`, {
         size: 9.5,

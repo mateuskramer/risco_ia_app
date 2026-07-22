@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { FileText, Loader2, TrendingUp, Clock, Upload } from "lucide-react";
+import { FileText, Loader2, TrendingUp, Clock, Upload, CheckCircle2, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RiskGauge } from "@/components/risk-gauge";
@@ -64,6 +64,20 @@ export default function DashboardPage() {
     return c;
   }, [analyzedDocs]);
 
+  const statusCounts = useMemo(() => {
+    let resolvido = 0;
+    let falso_positivo = 0;
+    let aberto = 0;
+    scopedDocs.forEach((d) => {
+      (d.findings || []).forEach((f) => {
+        if (f.status === "resolvido") resolvido++;
+        else if (f.status === "falso_positivo") falso_positivo++;
+        else aberto++;
+      });
+    });
+    return { resolvido, falso_positivo, aberto };
+  }, [scopedDocs]);
+
   const avgScore = useMemo(() => {
     if (analyzedDocs.length === 0) return 0;
     return Math.round(analyzedDocs.reduce((a, d) => a + d.overallScore, 0) / analyzedDocs.length);
@@ -90,27 +104,22 @@ export default function DashboardPage() {
               : "Visão geral dos projetos que você enviou."}
           </p>
         </div>
-        <Button asChild>
-          <Link href="/projetos">
-            <Upload className="h-4 w-4" /> Enviar PDF
-          </Link>
-        </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1.5">
+            <CardDescription className="flex items-center gap-1.5 text-xs">
               <FileText className="h-3.5 w-3.5" /> Projetos enviados
             </CardDescription>
-            <CardTitle className="font-data text-3xl">{scopedDocs.length}</CardTitle>
+            <CardTitle className="font-data text-2xl">{scopedDocs.length}</CardTitle>
           </CardHeader>
         </Card>
         {(["baixo", "medio", "alto"] as RiskTier[]).map((tier) => (
           <Card key={tier}>
             <CardHeader className="pb-2">
-              <CardDescription>Risco {RISK_TIER_LABEL[tier].toLowerCase()}</CardDescription>
-              <CardTitle className={`font-data text-3xl ${RISK_TIER_TEXT_CLASS[tier]}`}>{counts[tier]}</CardTitle>
+              <CardDescription className="text-xs">Risco {RISK_TIER_LABEL[tier].toLowerCase()}</CardDescription>
+              <CardTitle className={`font-data text-2xl ${RISK_TIER_TEXT_CLASS[tier]}`}>{counts[tier]}</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <div className={`h-1.5 w-full overflow-hidden rounded-full ${RISK_TIER_BG_CLASS[tier]}`}>
@@ -122,6 +131,30 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         ))}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Resolvidos
+            </CardDescription>
+            <CardTitle className="font-data text-2xl text-emerald-600 dark:text-emerald-400">
+              {statusCounts.resolvido}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-[10px] text-muted-foreground">Fora do score</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription className="flex items-center gap-1.5 text-xs">
+              <AlertCircle className="h-3.5 w-3.5" /> Falsos positivos
+            </CardDescription>
+            <CardTitle className="font-data text-2xl">{statusCounts.falso_positivo}</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-[10px] text-muted-foreground">Fora do score</p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[0.9fr_1.1fr]">

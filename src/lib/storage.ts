@@ -1,4 +1,4 @@
-import { AgentPrompt, AppUser, DocumentHistoryEntry, RiskDocument, Role, Session, SystemSettings } from "./types";
+import { AgentPrompt, AppUser, DocumentHistoryEntry, RiskDocument, RiskFindingStatus, Role, Session, SystemSettings } from "./types";
 
 // Config global de modelo de IA: ainda cosmético no front (quem manda de
 // verdade é a env var GOOGLE_MODEL no backend) — próximo passo é persistir
@@ -118,6 +118,9 @@ export async function getDocumentHistory(id: string): Promise<DocumentHistoryEnt
       score: f.score,
       tier: f.tier,
       description: f.description,
+      mitigation: "",
+      excerpts: [],
+      status: "aberto",
       agentPromptId: null,
     })),
   }));
@@ -139,6 +142,13 @@ export async function reanalyzeDocument(id: string): Promise<RiskDocument> {
 
 export async function deleteDocument(id: string): Promise<void> {
   await api(`/api/projects/${id}`, { method: "DELETE" });
+}
+
+export async function updateFindingStatus(documentId: string, riskId: string, status: RiskFindingStatus): Promise<RiskDocument> {
+  return api<RiskDocument>(`/api/projects/${documentId}/risks/${riskId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
 }
 
 // ---------- Agentes de IA (prompts) — backend real (tabela risk, admin only) ----------

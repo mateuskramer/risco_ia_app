@@ -45,6 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       score: Number(f.score),
       tier: f.tier,
       justificativa: f.output?.justificativa ?? "",
+      mitigacao: f.output?.mitigacao ?? "",
       trechos: f.output?.trechos ?? [],
     })),
     generatedAt: new Date().toISOString(),

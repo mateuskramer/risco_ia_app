@@ -15,6 +15,10 @@ import {
   ExternalLink,
   Download,
   FileDown,
+  Quote,
+  ShieldCheck,
+  CircleAlert,
+  MessageSquare,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,12 +28,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RiskGauge } from "@/components/risk-gauge";
 import { RiskBadge } from "@/components/risk-badge";
 import { PdfHistoryTimeline } from "@/components/pdf-history-timeline";
 import { PdfChat } from "@/components/pdf-chat";
 import { useAuth } from "@/lib/auth-context";
-import { DocumentHistoryEntry, RiskDocument } from "@/lib/types";
+import { DocumentHistoryEntry, RiskDocument, RiskFindingStatus } from "@/lib/types";
 import * as api from "@/lib/storage";
 import { toast } from "sonner";
 
@@ -105,6 +111,17 @@ export default function ProjetoDetailPage() {
     await api.deleteDocument(doc.id);
     toast.success("Projeto removido.");
     router.replace("/projetos");
+  }
+
+  async function handleStatusChange(riskId: string, newStatus: RiskFindingStatus) {
+    if (!doc) return;
+    try {
+      const updated = await api.updateFindingStatus(doc.id, riskId, newStatus);
+      setDoc(updated);
+      toast.success("Status do risco atualizado.");
+    } catch {
+      toast.error("Não foi possível atualizar o status.");
+    }
   }
 
   async function handleExportReport(format: "md" | "pdf") {
@@ -197,59 +214,126 @@ export default function ProjetoDetailPage() {
         </div>
       </div>
 
-      {doc.findings.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-            <FileText className="h-8 w-8 text-muted-foreground" />
-            <div>
-              <p className="font-medium">Este projeto ainda não foi analisado</p>
-              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                O PDF já está salvo — dá pra abrir ele acima. A análise de risco ainda não rodou com
-                sucesso {canManage ? '(clique em "Analisar agora" acima pra tentar).' : "."}
-              </p>
+      <Tabs defaultValue="riscos" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 max-w-xs">
+          <TabsTrigger value="riscos" className="gap-2">
+            <ShieldCheck className="h-4 w-4" /> Riscos
+          </TabsTrigger>
+          <TabsTrigger value="chat" className="gap-2">
+            <MessageSquare className="h-4 w-4" /> Chat IA
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="riscos" className="flex flex-col gap-5 mt-4">
+          {doc.findings.length === 0 ? (
+            <Card>
+              <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+                <FileText className="h-8 w-8 text-muted-foreground" />
+                <div>
+                  <p className="font-medium">Este projeto ainda não foi analisado</p>
+                  <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                    O PDF já está salvo — dá pra abrir ele acima. A análise de risco ainda não rodou com
+                    sucesso {canManage ? '(clique em "Analisar agora" acima pra tentar).' : "."}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <Card className="flex flex-col items-center justify-center gap-3 py-8">
+                <CardDescription>Score de risco atual</CardDescription>
+                <RiskGauge score={doc.overallScore} size="lg" />
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Principais riscos encontrados</CardTitle>
+                  <CardDescription>Um score por tipo de risco configurado.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3">
+                  {[...doc.findings]
+                    .sort((a, b) => b.score - a.score)
+                    .map((f) => (
+                      <div key={f.id} className="flex flex-col gap-3 rounded-md border border-border p-3">
+                        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-medium">{f.riskName}</p>
+                              <span className="inline-flex items-center rounded-full bg-accent/80 px-2 py-0.5 text-[10px] font-medium text-foreground">
+                                Probabilidade: {f.probability}
+                              </span>
+                              <span className="inline-flex items-center rounded-full bg-accent/80 px-2 py-0.5 text-[10px] font-medium text-foreground">
+                                Impacto: {f.impact}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-xs text-muted-foreground">{f.description}</p>
+                          </div>
+                          <RiskBadge tier={f.tier} score={f.score} className="w-fit shrink-0" />
+                        </div>
+
+                        {f.excerpts && f.excerpts.length > 0 && (
+                          <div className="rounded-md bg-muted/60 p-2.5 text-xs text-muted-foreground">
+                            <p className="mb-1 flex items-center gap-1 font-medium text-foreground">
+                              <Quote className="h-3.5 w-3.5" /> Trecho do documento
+                            </p>
+                            {f.excerpts.map((excerpt, index) => (
+                              <p key={index} className="italic">
+                                &ldquo;{excerpt.citation}&rdquo;{excerpt.page ? ` (página ${excerpt.page})` : ""}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+
+                        {f.mitigation && (
+                          <div className="rounded-md border border-primary/20 bg-primary/5 p-2.5 text-xs">
+                            <p className="mb-1 flex items-center gap-1 font-medium text-foreground">
+                              <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Sugestão de mitigação
+                            </p>
+                            <p className="text-muted-foreground">{f.mitigation}</p>
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2.5">
+                          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <CircleAlert className="h-3.5 w-3.5" /> Status do risco
+                          </span>
+                          <Select
+                            value={f.status ?? "aberto"}
+                            onValueChange={(value) => handleStatusChange(f.agentPromptId ?? "", value as RiskFindingStatus)}
+                            disabled={!canManage}
+                          >
+                            <SelectTrigger className="h-8 w-44 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="aberto">Aberto</SelectItem>
+                              <SelectItem value="resolvido">Resolvido</SelectItem>
+                              <SelectItem value="falso_positivo">Falso positivo</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    ))}
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-          <Card className="flex flex-col items-center justify-center gap-3 py-8">
-            <CardDescription>Score de risco atual</CardDescription>
-            <RiskGauge score={doc.overallScore} size="lg" />
-          </Card>
+          )}
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Principais riscos encontrados</CardTitle>
-              <CardDescription>Um score por tipo de risco configurado.</CardDescription>
+              <CardTitle className="text-base">Histórico de versões</CardTitle>
+              <CardDescription>Cada reanálise soma uma versão nova — o histórico nunca é sobrescrito.</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              {[...doc.findings]
-                .sort((a, b) => b.score - a.score)
-                .map((f) => (
-                  <div key={f.id} className="flex flex-col gap-1.5 rounded-md border border-border p-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm font-medium">{f.riskName}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{f.description}</p>
-                    </div>
-                    <RiskBadge tier={f.tier} score={f.score} className="w-fit shrink-0" />
-                  </div>
-                ))}
+            <CardContent>
+              <PdfHistoryTimeline entries={history} />
             </CardContent>
           </Card>
-        </div>
-      )}
+        </TabsContent>
 
-      <PdfChat documentId={doc.id} />
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Histórico de versões</CardTitle>
-          <CardDescription>Cada reanálise soma uma versão nova — o histórico nunca é sobrescrito.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PdfHistoryTimeline entries={history} />
-        </CardContent>
-      </Card>
+        <TabsContent value="chat" className="mt-4">
+          <PdfChat documentId={doc.id} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

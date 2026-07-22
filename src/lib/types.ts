@@ -12,6 +12,7 @@ export interface AppUser {
 }
 
 export type RiskTier = "baixo" | "medio" | "alto";
+export type RiskFindingStatus = "aberto" | "resolvido" | "falso_positivo";
 
 export function tierFromScore(score: number): RiskTier {
   if (score < 40) return "baixo";
@@ -24,7 +25,12 @@ export interface RiskFinding {
   riskName: string;
   score: number;
   tier: RiskTier;
+  probability: string;
+  impact: string;
   description: string;
+  mitigation: string;
+  excerpts: { citation: string; page: number | null }[];
+  status: RiskFindingStatus;
   agentPromptId: string | null;
 }
 

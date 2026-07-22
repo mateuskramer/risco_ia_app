@@ -13,7 +13,14 @@ interface FindingRow {
   riskName: string;
   score: string; // vem como string do DECIMAL
   tier: Tier;
-  output: { justificativa?: string; trechos?: { citacao: string; pagina: number | null }[] } | null;
+  output: {
+    justificativa?: string;
+    probabilidade?: string;
+    impacto?: string;
+    mitigacao?: string;
+    trechos?: { citacao: string; pagina: number | null }[];
+    status?: "aberto" | "resolvido" | "falso_positivo";
+  } | null;
 }
 
 export interface ProjectRow {
@@ -88,9 +95,10 @@ export async function fetchProjectsWithLatestFindings(
 }
 
 export function overallScore(findings: FindingRow[]): number {
-  if (findings.length === 0) return 0;
-  const sum = findings.reduce((acc, f) => acc + Number(f.score), 0);
-  return Math.round(sum / findings.length);
+  const openFindings = findings.filter((f) => (f.output?.status ?? "aberto") === "aberto");
+  if (openFindings.length === 0) return 0;
+  const sum = openFindings.reduce((acc, f) => acc + Number(f.score), 0);
+  return Math.round(sum / openFindings.length);
 }
 
 // Histórico completo: todas as rodadas de análise (agrupadas por timestamp),
@@ -150,7 +158,12 @@ export function mapProjectRow(row: ProjectRow, currentVersion: number) {
       riskName: f.riskName,
       score: Number(f.score),
       tier: f.tier,
+      probability: f.output?.probabilidade ?? "Média",
+      impact: f.output?.impacto ?? "Médio",
       description: f.output?.justificativa ?? "",
+      mitigation: f.output?.mitigacao ?? "",
+      excerpts: (f.output?.trechos ?? []).map((t) => ({ citation: t.citacao, page: t.pagina })),
+      status: f.output?.status ?? "aberto",
       agentPromptId: String(f.riskId),
     })),
   };

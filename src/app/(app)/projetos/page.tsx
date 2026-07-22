@@ -128,10 +128,10 @@ export default function ProjetosPage() {
                   const canManage = doc.ownerId === session?.userId;
                   return (
                     <TableRow key={doc.id}>
-                      <TableCell>
-                        <Link href={`/projetos/${doc.id}`} className="flex items-center gap-2 font-medium hover:text-primary">
-                          <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                          <span className="truncate">{doc.fileName}</span>
+                      <TableCell className="max-w-md break-words whitespace-normal">
+                        <Link href={`/projetos/${doc.id}`} className="flex items-start gap-2 font-medium hover:text-primary leading-snug">
+                          <FileText className="h-4 w-4 shrink-0 text-muted-foreground mt-0.5" />
+                          <span className="break-all whitespace-normal">{doc.fileName}</span>
                         </Link>
                       </TableCell>
                       {isAdmin && <TableCell className="text-muted-foreground">{doc.ownerName}</TableCell>}

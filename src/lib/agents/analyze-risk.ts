@@ -3,7 +3,10 @@ import { callInstitutionalGpt } from "./institutional-gpt-client";
 
 export const riskFindingSchema = z.object({
   score: z.number().min(0).max(100).describe("0 = nenhum risco, 100 = risco máximo"),
+  probabilidade: z.string().min(1).describe("estimativa de probabilidade: Baixa, Média ou Alta"),
+  impacto: z.string().min(1).describe("estimativa de impacto/gravidade: Baixo, Médio, Alto ou Crítico"),
   justificativa: z.string().min(1).describe("explicação curta e objetiva da pontuação"),
+  mitigacao: z.string().min(1).describe("sugestao pratica e objetiva para mitigar o risco identificado"),
   trechos: z
     .array(
       z.object({
@@ -26,7 +29,7 @@ const AGENT_INSTRUCTIONS =
 
 const JSON_SHAPE_INSTRUCTION =
   'Respond with ONLY a valid JSON object (no markdown, no code fences) matching exactly this shape: ' +
-  '{"score": number 0-100, "justificativa": string, "trechos": [{"citacao": string, "pagina": number|null}]}';
+  '{"score": number 0-100, "probabilidade": "Baixa"|"Média"|"Alta", "impacto": "Baixo"|"Médio"|"Alto"|"Crítico", "justificativa": string, "mitigacao": string, "trechos": [{"citacao": string, "pagina": number|null}]}';
 
 // Modelo único do sistema: gateway institucional (ver institutional-gpt-client.ts).
 // Esse endpoint só devolve texto, então pedimos JSON puro no prompt e
