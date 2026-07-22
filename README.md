@@ -10,8 +10,7 @@ de cada projeto, e exportação de relatório em PDF/Markdown.
 
 - **Front + back**: Next.js (App Router), num projeto só — páginas em
   `src/app/(app)` e `src/app/(auth)`, API em `src/app/api/**/route.ts`.
-- **Banco**: PostgreSQL, 5 tabelas (`users`, `project`, `project_section`,
-  `risk`, `project_section_risk`) — schema em `create-bd/create_db.py`.
+- **Banco**: PostgreSQL, 6 tabelas (`users`, `project`, `risk`, `project_risk`, `chat`, `chat_interaction`) — schema em `create-bd/create_db.py`.
 - **IA**: gateway institucional próprio (formato da Responses API da
   OpenAI, modelo `gpt-5.1`) — é o **único** modelo usado no sistema, tanto
   pra análise de risco quanto pro chat. Ver `src/lib/agents/institutional-gpt-client.ts`.
@@ -41,7 +40,7 @@ Acesse http://localhost:3000
 
 ### Banco de dados
 
-O schema (5 tabelas) vive em `create-bd/create_db.py`. É idempotente —
+O schema (6 tabelas) vive em `create-bd/create_db.py`. É idempotente —
 pode rodar de novo em cima de um banco já existente sem perder dado:
 
 ```bash
@@ -144,6 +143,6 @@ src/
     pdf-text.ts                     extração de texto do PDF (pdf-parse)
 
 create-bd/
-  create_db.py                      schema das 5 tabelas (idempotente)
+  create_db.py                      schema das 6 tabelas (idempotente)
   seed_risks.py, seed-data/         riscos padrão pra popular o banco
 ```
